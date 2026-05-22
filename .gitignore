@@ -1,27 +1,47 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+# Gradle and Build artifacts
+.gradle/
+**/build/
+.kotlin/
+*.apk
+*.ap_
+*.aab
+*.aar
 
-# Project exclude paths
-/core/data/build/
-/core/domain/build/
-/core/ui/build/
-/feature/admin/build/
-/feature/badges/build/
-/feature/events/build/
-/feature/home/build/
-/feature/home/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
-/feature/profile/build/
-/feature/skills/build/
+# IDE files
+*.iml
+.idea/
+!.idea/codeStyles/
+!.idea/copyright/
+!.idea/inspectionProfiles/
+!.idea/vcs.xml
+*.iws
+*.ipr
+
+# Local configuration & Secrets
+local.properties
+secrets.properties
+bundle-config.json
+*.keystore
+*.jks
+*.p12
+*.key
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+
+# Android Studio / Icon Wizard / Analysis
+captures/
+.externalNativeBuild/
+.cxx/
+assetWizardSettings.xml
+*ic_launcher-playstore.png
+*ic_launcher_foreground.png
+*ic_launcher_background.png
+*.hprof
+
+# Proguard / R8
+/proguard/
+/app/proguard-rules.pro
+# (Note: keep your custom rules, but ignore generated ones if any)
