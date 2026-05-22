@@ -1,0 +1,9 @@
+com.club.calisthenics.feature.auth-pngs-0 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/generated/res/pngs/debug
+com.club.calisthenics.feature.auth-updated_navigation_xml-1 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/generated/updated_navigation_xml/debug
+com.club.calisthenics.feature.auth-mergeDebugResources-2 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+com.club.calisthenics.feature.auth-mergeDebugResources-3 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+com.club.calisthenics.feature.auth-debug-4 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/intermediates/merged_res/debug/mergeDebugResources
+com.club.calisthenics.feature.auth-debug-5 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/build/intermediates/packaged_res/debug/packageDebugResources
+com.club.calisthenics.feature.auth-debug-6 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/src/debug/res
+com.club.calisthenics.feature.auth-main-7 /Users/jeremy/AndroidStudioProjects/Calisthenics/feature/auth/src/main/res
+gradleHome-0 /Users/jeremy/.gradle

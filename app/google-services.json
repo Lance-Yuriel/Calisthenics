@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "23112385976",
+    "project_id": "calisthenics-4edbd",
+    "storage_bucket": "calisthenics-4edbd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:23112385976:android:9bd82677d2bc64af57fb4d",
+        "android_client_info": {
+          "package_name": "com.club.calisthenics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "23112385976-fiul764k3atsp4j9spieft2fl203bdj2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADiErZFJzyiQ5izydstqCA5A1vdP3ILXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "23112385976-fiul764k3atsp4j9spieft2fl203bdj2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

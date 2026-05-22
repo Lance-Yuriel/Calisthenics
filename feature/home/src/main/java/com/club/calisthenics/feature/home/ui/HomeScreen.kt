@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,16 +32,21 @@ import com.club.calisthenics.feature.home.HomeViewModel
 
 @Composable
 fun HomeScreen(
+    onEventClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    HomeScreenContent(uiState = uiState)
+    HomeScreenContent(
+        uiState = uiState,
+        onEventClick = onEventClick
+    )
 }
 
 @Composable
 internal fun HomeScreenContent(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    onEventClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -46,7 +54,8 @@ internal fun HomeScreenContent(
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
-        HeaderSection()
+        val user = (uiState as? HomeUiState.Success)?.user
+        HeaderSection(displayName = user?.displayName, role = user?.role?.name)
         
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -56,7 +65,7 @@ internal fun HomeScreenContent(
                 Text("Loading...", style = MaterialTheme.typography.bodyLarge)
             }
             is HomeUiState.Success -> {
-                SuccessContent(uiState)
+                SuccessContent(uiState, onEventClick)
             }
             is HomeUiState.Error -> {
                 Text(text = uiState.message, color = MaterialTheme.colorScheme.error)
@@ -66,29 +75,52 @@ internal fun HomeScreenContent(
 }
 
 @Composable
-private fun HeaderSection() {
+private fun HeaderSection(displayName: String?, role: String?) {
     Column {
         Text(
             text = "Welcome back,",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(
-            text = "ATHLETE",
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.Black,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = displayName?.uppercase() ?: "ATHLETE",
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.primary
+            )
+            if (role == "ADMIN") {
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = androidx.compose.foundation.shape.CircleShape
+                ) {
+                    Text(
+                        text = "ADMIN",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun SuccessContent(state: HomeUiState.Success) {
+private fun SuccessContent(
+    state: HomeUiState.Success,
+    onEventClick: (String) -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
         StatsSection(state.stats)
         
         state.featuredEvent?.let { event ->
-            FeaturedEventSection(event)
+            FeaturedEventSection(
+                event = event,
+                onClick = { onEventClick(event.id) }
+            )
         }
 
         state.announcement?.let { announcement ->
@@ -143,7 +175,10 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun FeaturedEventSection(event: Event) {
+private fun FeaturedEventSection(
+    event: Event,
+    onClick: () -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             text = "UPCOMING SESSION",
@@ -151,7 +186,10 @@ private fun FeaturedEventSection(event: Event) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary
         )
-        CalisthenicsCard(modifier = Modifier.fillMaxWidth()) {
+        CalisthenicsCard(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = event.title,

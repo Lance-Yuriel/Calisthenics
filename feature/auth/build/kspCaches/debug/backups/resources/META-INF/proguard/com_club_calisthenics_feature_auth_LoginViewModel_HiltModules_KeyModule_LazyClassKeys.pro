@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class com.club.calisthenics.feature.auth.LoginViewModel

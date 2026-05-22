@@ -4,13 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.club.calisthenics.core.ui.theme.CalisthenicsTheme
-import com.club.calisthenics.feature.home.ui.HomeScreen
+import com.club.calisthenics.feature.auth.ui.LoginScreen
+import com.club.calisthenics.ui.AppViewModel
+import com.club.calisthenics.ui.MainScreen
+import com.club.calisthenics.ui.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,14 +21,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalisthenicsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        HomeScreen()
-                    }
+                val viewModel: AppViewModel = hiltViewModel()
+                val isInitializing by viewModel.isInitializing.collectAsState()
+                val isLoggedIn by viewModel.isUserLoggedIn.collectAsState()
+                
+                when {
+                    isInitializing -> SplashScreen()
+                    isLoggedIn -> MainScreen()
+                    else -> LoginScreen()
                 }
             }
         }
