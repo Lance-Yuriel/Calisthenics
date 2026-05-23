@@ -32,6 +32,7 @@ class EventDetailViewModel @Inject constructor(
             EventDetailUiState.Success(
                 event = event,
                 isAttending = event.attendees.contains(user?.id),
+                isWaitlisted = event.waitlist.contains(user?.id),
                 isFull = event.attendees.size >= event.capacity,
                 isAdmin = user?.role == UserRole.ADMIN
             )
@@ -51,7 +52,7 @@ class EventDetailViewModel @Inject constructor(
                 eventRepository.rsvpToEvent(
                     eventId = eventId,
                     userId = currentUserId,
-                    isAttending = !currentState.isAttending
+                    isAttending = !(currentState.isAttending || currentState.isWaitlisted)
                 )
             }
         }

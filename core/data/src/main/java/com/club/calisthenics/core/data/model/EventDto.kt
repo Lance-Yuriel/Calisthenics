@@ -38,7 +38,10 @@ data class EventDto(
     var qrPayload: String = "",
 
     @get:PropertyName("attendees") @set:PropertyName("attendees")
-    var attendees: List<String> = emptyList()
+    var attendees: List<String> = emptyList(),
+
+    @get:PropertyName("waitlist") @set:PropertyName("waitlist")
+    var waitlist: List<String> = emptyList()
 ) {
     fun toDomain(id: String): Event {
         return Event(
@@ -53,7 +56,8 @@ data class EventDto(
             coverImageUrl = coverImageUrl,
             state = try { EventState.valueOf(state.uppercase()) } catch (e: Exception) { EventState.DRAFT },
             qrPayload = qrPayload,
-            attendees = attendees
+            attendees = attendees,
+            waitlist = waitlist
         )
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +27,8 @@ fun EventCard(
     dateTime: LocalDateTime,
     imageUrl: String?,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    status: String? = null
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d • HH:mm")
     
@@ -59,6 +61,26 @@ fun EventCard(
                             )
                         )
                 )
+            }
+
+            if (status != null && status != "PUBLISHED") {
+                Surface(
+                    color = when (status) {
+                        "CANCELLED" -> MaterialTheme.colorScheme.error
+                        "LIVE" -> MaterialTheme.colorScheme.tertiary
+                        else -> MaterialTheme.colorScheme.secondary
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.padding(16.dp).align(Alignment.TopEnd)
+                ) {
+                    Text(
+                        text = status,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
 
             Column(

@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.club.calisthenics.feature.admin.AdminScreen
 import com.club.calisthenics.feature.admin.AdminScreen
+import com.club.calisthenics.feature.admin.BroadcastScreen
 import com.club.calisthenics.feature.admin.EditBadgeScreen
 import com.club.calisthenics.feature.admin.EditEventScreen
 import com.club.calisthenics.feature.admin.EditSkillScreen
@@ -23,7 +24,10 @@ import com.club.calisthenics.feature.badges.BadgesScreen
 import com.club.calisthenics.feature.events.EventDetailScreen
 import com.club.calisthenics.feature.events.EventsScreen
 import com.club.calisthenics.feature.home.ui.HomeScreen
+import com.club.calisthenics.feature.home.ui.InboxScreen
+import com.club.calisthenics.feature.profile.MemberDirectoryScreen
 import com.club.calisthenics.feature.profile.ProfileScreen
+import com.club.calisthenics.feature.profile.PublicProfileScreen
 import com.club.calisthenics.feature.skills.SkillsScreen
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
@@ -46,6 +50,12 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object SkillsManagement : Screen("skills_management", "Manage Skills", Icons.Filled.Settings)
     object EditSkill : Screen("edit_skill/{skillId}", "Edit Skill", Icons.Filled.Edit) {
         fun createRoute(skillId: String?) = if (skillId == null) "edit_skill/new" else "edit_skill/$skillId"
+    }
+    object Broadcast : Screen("broadcast", "Broadcast", Icons.Filled.RssFeed)
+    object Inbox : Screen("inbox", "Notifications", Icons.Filled.Notifications)
+    object Members : Screen("members", "Members", Icons.Filled.People)
+    object PublicProfile : Screen("public_profile/{userId}", "Athlete Profile", Icons.Filled.Person) {
+        fun createRoute(userId: String) = "public_profile/$userId"
     }
     object EventDetail : Screen("event_detail/{eventId}", "Event Detail", Icons.Filled.Event) {
         fun createRoute(eventId: String) = "event_detail/$eventId"
@@ -72,7 +82,18 @@ fun CalisthenicsNavHost(
             HomeScreen(
                 onEventClick = { eventId ->
                     navController.navigate(Screen.EventDetail.createRoute(eventId))
+                },
+                onNotificationsClick = {
+                    navController.navigate(Screen.Inbox.route)
+                },
+                onCreateEventClick = {
+                    navController.navigate(Screen.CreateEvent.route)
                 }
+            )
+        }
+        composable(Screen.Inbox.route) {
+            InboxScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.Events.route) {
@@ -98,7 +119,25 @@ fun CalisthenicsNavHost(
         }
         composable(Screen.Profile.route) {
             ProfileScreen(
-                onNavigateToAdmin = { navController.navigate(Screen.Admin.route) }
+                onNavigateToAdmin = { navController.navigate(Screen.Admin.route) },
+                onNavigateToMembers = { navController.navigate(Screen.Members.route) },
+                onNavigateToNotifications = { navController.navigate(Screen.Inbox.route) }
+            )
+        }
+        composable(Screen.Members.route) {
+            MemberDirectoryScreen(
+                onBack = { navController.popBackStack() },
+                onMemberClick = { userId ->
+                    navController.navigate(Screen.PublicProfile.createRoute(userId))
+                }
+            )
+        }
+        composable(
+            route = Screen.PublicProfile.route,
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) {
+            PublicProfileScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.Admin.route) {
@@ -108,7 +147,13 @@ fun CalisthenicsNavHost(
                 onNavigateToCreateEvent = { navController.navigate(Screen.CreateEvent.route) },
                 onNavigateToManageSkills = { navController.navigate(Screen.SkillsManagement.route) },
                 onNavigateToManageEvents = { navController.navigate(Screen.ManageEvents.route) },
-                onNavigateToManageBadges = { navController.navigate(Screen.ManageBadges.route) }
+                onNavigateToManageBadges = { navController.navigate(Screen.ManageBadges.route) },
+                onNavigateToBroadcast = { navController.navigate(Screen.Broadcast.route) }
+            )
+        }
+        composable(Screen.Broadcast.route) {
+            BroadcastScreen(
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.PendingMembers.route) {

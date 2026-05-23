@@ -59,6 +59,23 @@ class FirestoreUserRepository @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    override fun getApprovedUsers(): Flow<List<User>> = callbackFlow {
+        val subscription = firestore.collection("users")
+            .whereEqualTo("memberStatus", "APPROVED")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val users = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(UserDto::class.java)?.toDomain(doc.id)
+                } ?: emptyList()
+                trySend(users)
+            }
+        awaitClose { subscription.remove() }
+    }
+
     override suspend fun createUser(user: User) {
         val dto = UserDto(
             email = user.email,

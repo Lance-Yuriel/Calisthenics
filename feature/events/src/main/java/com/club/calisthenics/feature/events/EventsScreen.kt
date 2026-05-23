@@ -72,6 +72,7 @@ private fun EventsList(
                     location = event.location,
                     dateTime = event.startAt,
                     imageUrl = event.coverImageUrl,
+                    status = event.state.name,
                     onClick = { onEventClick(event.id) }
                 )
             }

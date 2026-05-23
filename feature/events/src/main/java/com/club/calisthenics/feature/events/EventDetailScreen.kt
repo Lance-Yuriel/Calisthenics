@@ -89,6 +89,7 @@ fun EventDetailScreen(
                         EventDetailContent(
                             event = state.event,
                             isAttending = state.isAttending,
+                            isWaitlisted = state.isWaitlisted,
                             isFull = state.isFull,
                             isAdmin = state.isAdmin,
                             onRsvpClick = { viewModel.toggleRsvp() },
@@ -122,6 +123,7 @@ fun EventDetailScreen(
 private fun EventDetailContent(
     event: Event,
     isAttending: Boolean,
+    isWaitlisted: Boolean,
     isFull: Boolean,
     isAdmin: Boolean,
     onRsvpClick: () -> Unit,
@@ -232,14 +234,15 @@ private fun EventDetailContent(
 
             val buttonText = when {
                 isAttending -> "Cancel RSVP"
-                isFull -> "Session Full"
+                isWaitlisted -> "Leave Waitlist"
+                isFull -> "Join Waitlist"
                 else -> "RSVP Now"
             }
 
             CalisthenicsButton(
                 text = buttonText,
                 onClick = onRsvpClick,
-                enabled = isAttending || !isFull,
+                enabled = true, // Waitlist always possible unless cancelled
                 modifier = Modifier.fillMaxWidth()
             )
             

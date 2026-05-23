@@ -40,6 +40,10 @@ abstract class DataModule {
     @Singleton
     abstract fun bindBadgeRepository(repo: FirestoreBadgeRepository): BadgeRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindAnnouncementRepository(repo: FirestoreAnnouncementRepository): AnnouncementRepository
+
     companion object {
         @Provides
         @Singleton

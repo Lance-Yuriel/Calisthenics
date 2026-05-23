@@ -56,7 +56,11 @@ class FirestoreEventRepository @Inject constructor(
                 } ?: emptyList()
 
                 val upcoming = events
-                    .filter { it.state == com.club.calisthenics.core.domain.model.EventState.PUBLISHED || it.state == com.club.calisthenics.core.domain.model.EventState.LIVE }
+                    .filter { 
+                        it.state == com.club.calisthenics.core.domain.model.EventState.PUBLISHED || 
+                        it.state == com.club.calisthenics.core.domain.model.EventState.LIVE ||
+                        it.state == com.club.calisthenics.core.domain.model.EventState.CANCELLED
+                    }
                     .sortedBy { it.startAt }
                 
                 trySend(upcoming)
@@ -76,7 +80,7 @@ class FirestoreEventRepository @Inject constructor(
                 } ?: emptyList()
 
                 val past = events
-                    .filter { it.state == com.club.calisthenics.core.domain.model.EventState.CLOSED || it.state == com.club.calisthenics.core.domain.model.EventState.CANCELLED }
+                    .filter { it.state == com.club.calisthenics.core.domain.model.EventState.CLOSED }
                     .sortedByDescending { it.startAt }
                 
                 trySend(past)
@@ -158,12 +162,38 @@ class FirestoreEventRepository @Inject constructor(
     }
 
     override suspend fun rsvpToEvent(eventId: String, userId: String, isAttending: Boolean): Result<Unit> = try {
-        val eventRef = firestore.collection("events").document(eventId)
-        if (isAttending) {
-            eventRef.update("attendees", FieldValue.arrayUnion(userId)).await()
-        } else {
-            eventRef.update("attendees", FieldValue.arrayRemove(userId)).await()
-        }
+        firestore.runTransaction { transaction ->
+            val eventRef = firestore.collection("events").document(eventId)
+            val snapshot = transaction.get(eventRef)
+            val event = snapshot.toObject(EventDto::class.java) ?: return@runTransaction
+            
+            val attendees = event.attendees.toMutableList()
+            val waitlist = event.waitlist.toMutableList()
+            
+            if (isAttending) {
+                if (!attendees.contains(userId) && !waitlist.contains(userId)) {
+                    if (attendees.size < event.capacity) {
+                        attendees.add(userId)
+                    } else {
+                        waitlist.add(userId)
+                    }
+                }
+            } else {
+                if (attendees.contains(userId)) {
+                    attendees.remove(userId)
+                    // Auto-promote from waitlist
+                    if (waitlist.isNotEmpty()) {
+                        val firstInWaitlist = waitlist.removeAt(0)
+                        attendees.add(firstInWaitlist)
+                    }
+                } else if (waitlist.contains(userId)) {
+                    waitlist.remove(userId)
+                }
+            }
+            
+            transaction.update(eventRef, "attendees", attendees)
+            transaction.update(eventRef, "waitlist", waitlist)
+        }.await()
         Result.success(Unit)
     } catch (e: Exception) {
         Result.failure(e)

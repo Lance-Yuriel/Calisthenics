@@ -14,7 +14,8 @@ data class Event(
     val coverImageUrl: String?,
     val state: EventState,
     val qrPayload: String,
-    val attendees: List<String> = emptyList()
+    val attendees: List<String> = emptyList(),
+    val waitlist: List<String> = emptyList()
 )
 
 enum class EventState {

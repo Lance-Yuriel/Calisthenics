@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.club.calisthenics.core.domain.model.UserStats
+import com.club.calisthenics.core.domain.repository.AnnouncementRepository
 import com.club.calisthenics.core.domain.repository.AuthRepository
 import com.club.calisthenics.core.domain.repository.EventRepository
 import com.club.calisthenics.core.domain.repository.UserRepository
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    private val announcementRepository: AnnouncementRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> = combine(
@@ -35,14 +37,15 @@ class HomeViewModel @Inject constructor(
                 flowOf(null)
             }
         },
-        eventRepository.getFeaturedEvent()
-    ) { user, featuredEvent ->
+        eventRepository.getFeaturedEvent(),
+        announcementRepository.getLatestAnnouncement()
+    ) { user, featuredEvent, latestAnnouncement ->
         Log.d("HomeViewModel", "Combining state. User: ${user?.displayName}, Event: ${featuredEvent?.title}")
         HomeUiState.Success(
             user = user,
             featuredEvent = featuredEvent,
             stats = user?.stats ?: UserStats(0, 0),
-            announcement = "Welcome to Calisthenics Club!"
+            announcement = latestAnnouncement?.body ?: "Welcome to Calisthenics Club!"
         )
     }.stateIn(
         scope = viewModelScope,

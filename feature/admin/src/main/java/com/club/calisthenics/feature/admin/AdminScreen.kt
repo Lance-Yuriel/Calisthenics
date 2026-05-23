@@ -28,7 +28,8 @@ fun AdminScreen(
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToManageSkills: () -> Unit,
     onNavigateToManageEvents: () -> Unit,
-    onNavigateToManageBadges: () -> Unit
+    onNavigateToManageBadges: () -> Unit,
+    onNavigateToBroadcast: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -81,7 +82,7 @@ fun AdminScreen(
                 AdminMenuTile(
                     title = "Broadcast",
                     subtitle = "Send push notification to all",
-                    onClick = { /* TODO */ }
+                    onClick = onNavigateToBroadcast
                 )
             }
         }
