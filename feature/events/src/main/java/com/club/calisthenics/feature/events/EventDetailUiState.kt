@@ -7,7 +7,8 @@ sealed interface EventDetailUiState {
     data class Success(
         val event: Event,
         val isAttending: Boolean,
-        val isFull: Boolean
+        val isFull: Boolean,
+        val isAdmin: Boolean = false
     ) : EventDetailUiState
     data class Error(val message: String) : EventDetailUiState
 }

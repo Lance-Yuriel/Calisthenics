@@ -12,7 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.club.calisthenics.feature.admin.AdminScreen
 import com.club.calisthenics.feature.admin.CreateEventScreen
+import com.club.calisthenics.feature.admin.EditSkillScreen
 import com.club.calisthenics.feature.admin.PendingMembersScreen
+import com.club.calisthenics.feature.admin.SkillsManagementScreen
 import com.club.calisthenics.feature.badges.BadgesScreen
 import com.club.calisthenics.feature.events.EventDetailScreen
 import com.club.calisthenics.feature.events.EventsScreen
@@ -29,6 +31,10 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Admin : Screen("admin", "Admin", Icons.Filled.AdminPanelSettings)
     object PendingMembers : Screen("pending_members", "Pending Members", Icons.Filled.Group)
     object CreateEvent : Screen("create_event", "Create Event", Icons.Filled.Add)
+    object SkillsManagement : Screen("skills_management", "Manage Skills", Icons.Filled.Settings)
+    object EditSkill : Screen("edit_skill/{skillId}", "Edit Skill", Icons.Filled.Edit) {
+        fun createRoute(skillId: String?) = if (skillId == null) "edit_skill/new" else "edit_skill/$skillId"
+    }
     object EventDetail : Screen("event_detail/{eventId}", "Event Detail", Icons.Filled.Event) {
         fun createRoute(eventId: String) = "event_detail/$eventId"
     }
@@ -87,7 +93,8 @@ fun CalisthenicsNavHost(
             AdminScreen(
                 onBack = { navController.popBackStack() },
                 onNavigateToPendingMembers = { navController.navigate(Screen.PendingMembers.route) },
-                onNavigateToCreateEvent = { navController.navigate(Screen.CreateEvent.route) }
+                onNavigateToCreateEvent = { navController.navigate(Screen.CreateEvent.route) },
+                onNavigateToManageSkills = { navController.navigate(Screen.SkillsManagement.route) }
             )
         }
         composable(Screen.PendingMembers.route) {
@@ -97,6 +104,23 @@ fun CalisthenicsNavHost(
         }
         composable(Screen.CreateEvent.route) {
             CreateEventScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.SkillsManagement.route) {
+            SkillsManagementScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToCreateSkill = { navController.navigate(Screen.EditSkill.createRoute(null)) },
+                onNavigateToEditSkill = { id -> navController.navigate(Screen.EditSkill.createRoute(id)) }
+            )
+        }
+        composable(
+            route = Screen.EditSkill.route,
+            arguments = listOf(navArgument("skillId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val skillId = backStackEntry.arguments?.getString("skillId")?.takeIf { it != "new" }
+            EditSkillScreen(
+                skillId = skillId,
                 onBack = { navController.popBackStack() }
             )
         }

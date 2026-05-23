@@ -10,4 +10,5 @@ interface EventRepository {
     fun getEventById(id: String): Flow<Event?>
     suspend fun createEvent(event: Event)
     suspend fun rsvpToEvent(eventId: String, userId: String, isAttending: Boolean): Result<Unit>
+    suspend fun checkInToEvent(eventId: String, userId: String): Result<Unit>
 }

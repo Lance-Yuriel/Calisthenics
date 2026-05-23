@@ -18,6 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +30,7 @@ import com.club.calisthenics.core.domain.model.Event
 import com.club.calisthenics.core.domain.model.UserStats
 import com.club.calisthenics.core.ui.components.CalisthenicsButton
 import com.club.calisthenics.core.ui.components.CalisthenicsCard
+import com.club.calisthenics.core.ui.components.QRScanner
 import com.club.calisthenics.feature.home.HomeUiState
 import com.club.calisthenics.feature.home.HomeViewModel
 
@@ -36,17 +40,30 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isScanning by remember { mutableStateOf(false) }
 
-    HomeScreenContent(
-        uiState = uiState,
-        onEventClick = onEventClick
-    )
+    if (isScanning) {
+        QRScanner(
+            onResult = { result ->
+                viewModel.checkIn(result)
+                isScanning = false
+            },
+            onClose = { isScanning = false }
+        )
+    } else {
+        HomeScreenContent(
+            uiState = uiState,
+            onEventClick = onEventClick,
+            onScanClick = { isScanning = true }
+        )
+    }
 }
 
 @Composable
 internal fun HomeScreenContent(
     uiState: HomeUiState,
-    onEventClick: (String) -> Unit
+    onEventClick: (String) -> Unit,
+    onScanClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -65,7 +82,7 @@ internal fun HomeScreenContent(
                 Text("Loading...", style = MaterialTheme.typography.bodyLarge)
             }
             is HomeUiState.Success -> {
-                SuccessContent(uiState, onEventClick)
+                SuccessContent(uiState, onEventClick, onScanClick)
             }
             is HomeUiState.Error -> {
                 Text(text = uiState.message, color = MaterialTheme.colorScheme.error)
@@ -111,7 +128,8 @@ private fun HeaderSection(displayName: String?, role: String?) {
 @Composable
 private fun SuccessContent(
     state: HomeUiState.Success,
-    onEventClick: (String) -> Unit
+    onEventClick: (String) -> Unit,
+    onScanClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
         StatsSection(state.stats)
@@ -131,7 +149,7 @@ private fun SuccessContent(
         
         CalisthenicsButton(
             text = "Scan QR Code",
-            onClick = { /* TODO */ }
+            onClick = onScanClick
         )
     }
 }

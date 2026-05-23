@@ -125,4 +125,18 @@ class FirestoreEventRepository @Inject constructor(
     } catch (e: Exception) {
         Result.failure(e)
     }
+
+    override suspend fun checkInToEvent(eventId: String, userId: String): Result<Unit> = try {
+        val attendanceId = "${eventId}_${userId}"
+        val attendanceData = mapOf(
+            "eventId" to eventId,
+            "userId" to userId,
+            "source" to "qr",
+            "checkedInAt" to FieldValue.serverTimestamp()
+        )
+        firestore.collection("attendance").document(attendanceId).set(attendanceData).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

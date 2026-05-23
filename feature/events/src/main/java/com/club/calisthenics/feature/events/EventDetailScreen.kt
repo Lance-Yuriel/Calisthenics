@@ -1,21 +1,30 @@
 package com.club.calisthenics.feature.events
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.club.calisthenics.core.domain.model.Event
 import com.club.calisthenics.core.ui.components.CalisthenicsButton
+import com.club.calisthenics.core.ui.components.QRScanner
+import com.club.calisthenics.core.ui.util.QRGenerator
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,42 +34,70 @@ fun EventDetailScreen(
     viewModel: EventDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isScanning by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Session Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    if (isScanning) {
+        QRScanner(
+            onResult = { result ->
+                // Check if scanned QR matches current event
+                val currentState = uiState
+                if (currentState is EventDetailUiState.Success && result == currentState.event.id) {
+                    viewModel.checkIn()
+                }
+                isScanning = false
+            },
+            onClose = { isScanning = false }
+        )
+    } else {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Session Details") },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
                     }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            when (val state = uiState) {
-                is EventDetailUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is EventDetailUiState.Success -> {
-                    EventDetailContent(
-                        event = state.event,
-                        isAttending = state.isAttending,
-                        isFull = state.isFull,
-                        onRsvpClick = { viewModel.toggleRsvp() }
-                    )
-                }
-                is EventDetailUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                )
+            }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                when (val state = uiState) {
+                    is EventDetailUiState.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    is EventDetailUiState.Success -> {
+                        var showQrDialog by remember { mutableStateOf(false) }
+                        
+                        EventDetailContent(
+                            event = state.event,
+                            isAttending = state.isAttending,
+                            isFull = state.isFull,
+                            isAdmin = state.isAdmin,
+                            onRsvpClick = { viewModel.toggleRsvp() },
+                            onScanClick = { isScanning = true },
+                            onShowQrClick = { showQrDialog = true }
+                        )
+
+                        if (showQrDialog) {
+                            QrCodeDialog(
+                                eventId = state.event.id,
+                                eventTitle = state.event.title,
+                                onDismiss = { showQrDialog = false }
+                            )
+                        }
+                    }
+                    is EventDetailUiState.Error -> {
+                        Text(
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
@@ -72,7 +109,10 @@ private fun EventDetailContent(
     event: Event,
     isAttending: Boolean,
     isFull: Boolean,
-    onRsvpClick: () -> Unit
+    isAdmin: Boolean,
+    onRsvpClick: () -> Unit,
+    onScanClick: () -> Unit,
+    onShowQrClick: () -> Unit
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -83,6 +123,19 @@ private fun EventDetailContent(
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
+        if (isAdmin) {
+            OutlinedButton(
+                onClick = onShowQrClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.QrCode, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("SHOW CHECK-IN QR")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Text(
             text = event.title,
             style = MaterialTheme.typography.headlineMedium,
@@ -106,6 +159,15 @@ private fun EventDetailContent(
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        if (isAttending) {
+            CalisthenicsButton(
+                text = "Check-in with QR",
+                onClick = onScanClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
         Text(
             text = "ABOUT THIS SESSION",
@@ -152,6 +214,74 @@ private fun EventDetailContent(
             enabled = isAttending || !isFull,
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+@Composable
+private fun QrCodeDialog(
+    eventId: String,
+    eventTitle: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = eventTitle.uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // QR code rendering
+                val qrBitmap = remember(eventId) { QRGenerator.generateQRCode(eventId) }
+                
+                Box(
+                    modifier = Modifier
+                        .size(240.dp)
+                        .background(Color.White, RoundedCornerShape(16.dp))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (qrBitmap != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = qrBitmap.asImageBitmap(),
+                            contentDescription = "Check-in QR Code",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Text(
+                            text = "Error generating QR",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = "Athletes can scan this to check-in",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                    Text("CLOSE")
+                }
+            }
+        }
     }
 }
 

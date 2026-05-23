@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.sp
 fun AdminScreen(
     onBack: () -> Unit,
     onNavigateToPendingMembers: () -> Unit,
-    onNavigateToCreateEvent: () -> Unit
+    onNavigateToCreateEvent: () -> Unit,
+    onNavigateToManageSkills: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -68,7 +69,7 @@ fun AdminScreen(
                 AdminMenuTile(
                     title = "Manage Skills",
                     subtitle = "Edit the movement library",
-                    onClick = { /* TODO */ }
+                    onClick = onNavigateToManageSkills
                 )
                 AdminMenuTile(
                     title = "Broadcast",

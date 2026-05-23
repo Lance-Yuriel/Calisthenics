@@ -2,9 +2,11 @@ package com.club.calisthenics.core.data.di
 
 import com.club.calisthenics.core.data.repository.FirebaseAuthRepository
 import com.club.calisthenics.core.data.repository.FirestoreEventRepository
+import com.club.calisthenics.core.data.repository.FirestoreSkillRepository
 import com.club.calisthenics.core.data.repository.FirestoreUserRepository
 import com.club.calisthenics.core.domain.repository.AuthRepository
 import com.club.calisthenics.core.domain.repository.EventRepository
+import com.club.calisthenics.core.domain.repository.SkillRepository
 import com.club.calisthenics.core.domain.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,6 +38,12 @@ abstract class DataModule {
     abstract fun bindAuthRepository(
         firebaseAuthRepository: FirebaseAuthRepository
     ): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSkillRepository(
+        firestoreSkillRepository: FirestoreSkillRepository
+    ): SkillRepository
 
     companion object {
         @Provides
