@@ -14,13 +14,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.club.calisthenics.core.domain.model.Event
 import com.club.calisthenics.core.ui.components.CalisthenicsButton
 import com.club.calisthenics.core.ui.components.QRScanner
@@ -39,7 +42,6 @@ fun EventDetailScreen(
     if (isScanning) {
         QRScanner(
             onResult = { result ->
-                // Check if scanned QR matches current event
                 val currentState = uiState
                 if (currentState is EventDetailUiState.Success && result == currentState.event.id) {
                     viewModel.checkIn()
@@ -49,22 +51,33 @@ fun EventDetailScreen(
             onClose = { isScanning = false }
         )
     } else {
+        val hasImage = (uiState as? EventDetailUiState.Success)?.event?.coverImageUrl != null
+        
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Session Details") },
+                    title = { if (!hasImage) Text("Session Details") },
                     navigationIcon = {
-                        IconButton(onClick = onBackClick) {
+                        IconButton(
+                            onClick = onBackClick,
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = if (hasImage) Color.Black.copy(alpha = 0.3f) else Color.Transparent,
+                                contentColor = if (hasImage) Color.White else MaterialTheme.colorScheme.onSurface
+                            )
+                        ) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent
+                    )
                 )
             }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
             ) {
                 when (val state = uiState) {
                     is EventDetailUiState.Loading -> {
@@ -80,7 +93,8 @@ fun EventDetailScreen(
                             isAdmin = state.isAdmin,
                             onRsvpClick = { viewModel.toggleRsvp() },
                             onScanClick = { isScanning = true },
-                            onShowQrClick = { showQrDialog = true }
+                            onShowQrClick = { showQrDialog = true },
+                            paddingValues = innerPadding
                         )
 
                         if (showQrDialog) {
@@ -112,7 +126,8 @@ private fun EventDetailContent(
     isAdmin: Boolean,
     onRsvpClick: () -> Unit,
     onScanClick: () -> Unit,
-    onShowQrClick: () -> Unit
+    onShowQrClick: () -> Unit,
+    paddingValues: PaddingValues
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -121,99 +136,115 @@ private fun EventDetailContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp)
     ) {
-        if (isAdmin) {
-            OutlinedButton(
-                onClick = onShowQrClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Default.QrCode, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("SHOW CHECK-IN QR")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
+        if (!event.coverImageUrl.isNullOrEmpty()) {
+            AsyncImage(
+                model = event.coverImageUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding()))
         }
 
-        Text(
-            text = event.title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black
-        )
+        Column(modifier = Modifier.padding(24.dp)) {
+            if (isAdmin) {
+                OutlinedButton(
+                    onClick = onShowQrClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.QrCode, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("SHOW CHECK-IN QR")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black
+            )
 
-        InfoRow(
-            icon = Icons.Default.Schedule,
-            title = event.startAt.format(dateFormatter),
-            subtitle = "${event.startAt.format(timeFormatter)} - ${event.endAt.format(timeFormatter)}"
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            InfoRow(
+                icon = Icons.Default.Schedule,
+                title = event.startAt.format(dateFormatter),
+                subtitle = "${event.startAt.format(timeFormatter)} - ${event.endAt.format(timeFormatter)}"
+            )
 
-        InfoRow(
-            icon = Icons.Default.LocationOn,
-            title = event.location,
-            subtitle = "Tap for directions"
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(32.dp))
+            InfoRow(
+                icon = Icons.Default.LocationOn,
+                title = event.location,
+                subtitle = "Tap for directions"
+            )
 
-        if (isAttending) {
+            Spacer(modifier = Modifier.height(32.dp))
+
+            if (isAttending) {
+                CalisthenicsButton(
+                    text = "Check-in with QR",
+                    onClick = onScanClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            Text(
+                text = "ABOUT THIS SESSION",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = event.description,
+                style = MaterialTheme.typography.bodyLarge,
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "ATTENDEES",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "${event.attendees.size} / ${event.capacity} people joined",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            val buttonText = when {
+                isAttending -> "Cancel RSVP"
+                isFull -> "Session Full"
+                else -> "RSVP Now"
+            }
+
             CalisthenicsButton(
-                text = "Check-in with QR",
-                onClick = onScanClick,
+                text = buttonText,
+                onClick = onRsvpClick,
+                enabled = isAttending || !isFull,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            
+            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
         }
-
-        Text(
-            text = "ABOUT THIS SESSION",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = event.description,
-            style = MaterialTheme.typography.bodyLarge,
-            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = "ATTENDEES",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "${event.attendees.size} / ${event.capacity} people joined",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        val buttonText = when {
-            isAttending -> "Cancel RSVP"
-            isFull -> "Session Full"
-            else -> "RSVP Now"
-        }
-
-        CalisthenicsButton(
-            text = buttonText,
-            onClick = onRsvpClick,
-            enabled = isAttending || !isFull,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
@@ -242,7 +273,6 @@ private fun QrCodeDialog(
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // QR code rendering
                 val qrBitmap = remember(eventId) { QRGenerator.generateQRCode(eventId) }
                 
                 Box(

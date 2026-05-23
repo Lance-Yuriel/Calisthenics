@@ -1,9 +1,9 @@
-# QR Check-in
+# QR Check-in [DONE]
 
-## Model
+## Model [DONE]
 - QR created when admin **publishes** (`DRAFT` has no QR).
 - QR encodes: `eventId` (static for life of event).
-- Same code for in-app **Show QR** and **print/PDF**.
+- Same code for in-app **Show QR**.
 
 ## Check-in time window
 - Allowed only when **now** is between:

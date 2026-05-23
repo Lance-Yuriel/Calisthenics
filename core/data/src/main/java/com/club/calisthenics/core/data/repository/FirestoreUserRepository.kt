@@ -81,4 +81,17 @@ class FirestoreUserRepository @Inject constructor(
             .update("hasSeenOnboarding", seen)
             .await()
     }
+
+    override suspend fun updateProfile(userId: String, displayName: String?, photoUrl: String?): Result<Unit> = try {
+        val updates = mutableMapOf<String, Any>()
+        displayName?.let { updates["displayName"] = it }
+        photoUrl?.let { updates["photoUrl"] = it }
+        
+        if (updates.isNotEmpty()) {
+            firestore.collection("users").document(userId).update(updates).await()
+        }
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

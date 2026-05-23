@@ -10,4 +10,5 @@ interface UserRepository {
     suspend fun createUser(user: User)
     suspend fun updateMemberStatus(userId: String, status: MemberStatus)
     suspend fun updateOnboardingStatus(userId: String, seen: Boolean)
+    suspend fun updateProfile(userId: String, displayName: String?, photoUrl: String?): Result<Unit>
 }

@@ -13,15 +13,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import coil.compose.AsyncImage
 import com.club.calisthenics.core.domain.model.UserRole
 import com.club.calisthenics.core.ui.components.CalisthenicsCard
+import com.club.calisthenics.core.ui.components.ImageCropperDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +36,27 @@ fun ProfileScreen(
     onNavigateToAdmin: () -> Unit
 ) {
     val user by viewModel.user.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val scrollState = rememberScrollState()
+    
+    var pendingImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri -> pendingImageUri = uri }
+    )
+
+    if (pendingImageUri != null) {
+        ImageCropperDialog(
+            uri = pendingImageUri!!,
+            isCircular = true,
+            onConfirm = { bitmap ->
+                viewModel.updateProfileBitmap(bitmap)
+                pendingImageUri = null
+            },
+            onDismiss = { pendingImageUri = null }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -61,31 +87,63 @@ fun ProfileScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile Picture
+            // Profile Picture with Edit Trigger
             Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .border(4.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.size(140.dp),
+                contentAlignment = Alignment.BottomEnd
             ) {
-                if (!user?.photoUrl.isNullOrEmpty()) {
-                    AsyncImage(
-                        model = user?.photoUrl,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        onError = { 
-                             android.util.Log.e("ProfileScreen", "Image Load Error: ${it.result.throwable.message}")
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .border(4.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    if (isLoading) {
+                        Box(contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(32.dp))
                         }
-                    )
-                } else {
-                    Text(
-                        text = user?.displayName?.firstOrNull()?.toString()?.uppercase() ?: "A",
-                        style = MaterialTheme.typography.displayLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    } else if (!user?.photoUrl.isNullOrEmpty()) {
+                        AsyncImage(
+                            model = user?.photoUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            onError = { 
+                                 android.util.Log.e("ProfileScreen", "Image Load Error: ${it.result.throwable.message}")
+                            }
+                        )
+                    } else {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = user?.displayName?.firstOrNull()?.toString()?.uppercase() ?: "A",
+                                style = MaterialTheme.typography.displayLarge,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+                
+                // Better Edit Trigger: Small floating button at bottom right
+                if (!isLoading) {
+                    SmallFloatingActionButton(
+                        onClick = { 
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        shape = CircleShape,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Change Photo",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
 

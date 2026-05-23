@@ -1,12 +1,12 @@
-# Event Authoring (Admin)
+# Event Authoring (Admin) [DONE]
 
 ## Create flow
-1. **New event** → `DRAFT`.
+1. **New event** → `PUBLISHED` (MVP defaults to direct publish).
 2. **Required:** `title`, `startAt`, `endAt`, `capacity` (integer ≥ 0).
 3. **Optional:** `description`, `location`, `locationUrl`, `coverImage`.
-4. Times in **club local timezone** (fixed app config, e.g. `Pacific/Auckland`).
-5. Validate: `endAt` > `startAt`.
-6. **Save draft** or **Publish** → `PUBLISHED` + QR generated.
+4. Image upload to Firebase Storage supported.
+5. Times in device local timezone (MVP).
+6. **Publish** → `PUBLISHED` + QR generated.
 
 ## Capacity & waitlist
 - `GOING` ≤ `capacity` (capacity **0** = all RSVPs go to `WAITLIST` or only NOT_GOING).

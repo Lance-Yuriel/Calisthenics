@@ -1,10 +1,12 @@
 package com.club.calisthenics.feature.admin
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.club.calisthenics.core.domain.model.Event
 import com.club.calisthenics.core.domain.model.EventState
 import com.club.calisthenics.core.domain.repository.EventRepository
+import com.club.calisthenics.core.domain.repository.StorageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateEventViewModel @Inject constructor(
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    private val storageRepository: StorageRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -29,11 +32,19 @@ class CreateEventViewModel @Inject constructor(
         description: String,
         location: String,
         dateTime: LocalDateTime,
-        capacity: Int
+        capacity: Int,
+        imageUri: Uri?
     ) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                var imageUrl: String? = null
+                if (imageUri != null) {
+                    val path = "events/${UUID.randomUUID()}.jpg"
+                    val uploadResult = storageRepository.uploadImage(imageUri, path)
+                    imageUrl = uploadResult.getOrNull()
+                }
+
                 val newEvent = Event(
                     id = "", // Firestore will generate this
                     title = title,
@@ -43,7 +54,7 @@ class CreateEventViewModel @Inject constructor(
                     startAt = dateTime,
                     endAt = dateTime.plusHours(2), // Default 2h duration
                     capacity = capacity,
-                    coverImageUrl = null,
+                    coverImageUrl = imageUrl,
                     state = EventState.PUBLISHED,
                     qrPayload = UUID.randomUUID().toString()
                 )

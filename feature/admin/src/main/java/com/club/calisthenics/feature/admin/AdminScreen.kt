@@ -26,7 +26,9 @@ fun AdminScreen(
     onBack: () -> Unit,
     onNavigateToPendingMembers: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
-    onNavigateToManageSkills: () -> Unit
+    onNavigateToManageSkills: () -> Unit,
+    onNavigateToManageEvents: () -> Unit,
+    onNavigateToManageBadges: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -62,14 +64,19 @@ fun AdminScreen(
 
             AdminSection(title = "Content Control") {
                 AdminMenuTile(
-                    title = "Create New Event",
-                    subtitle = "Publish a new training session",
-                    onClick = onNavigateToCreateEvent
+                    title = "Manage Sessions",
+                    subtitle = "Edit, Cancel or Archive events",
+                    onClick = onNavigateToManageEvents
                 )
                 AdminMenuTile(
                     title = "Manage Skills",
                     subtitle = "Edit the movement library",
                     onClick = onNavigateToManageSkills
+                )
+                AdminMenuTile(
+                    title = "Manage Badges",
+                    subtitle = "Edit achievement catalog",
+                    onClick = onNavigateToManageBadges
                 )
                 AdminMenuTile(
                     title = "Broadcast",

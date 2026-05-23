@@ -97,6 +97,21 @@ class FirestoreEventRepository @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    override fun getAllEvents(): Flow<List<Event>> = callbackFlow {
+        val subscription = firestore.collection("events")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val events = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(EventDto::class.java)?.toDomain(doc.id)
+                } ?: emptyList()
+                trySend(events.sortedByDescending { it.startAt })
+            }
+        awaitClose { subscription.remove() }
+    }
+
     override suspend fun createEvent(event: Event) {
         val dto = EventDto(
             title = event.title,
@@ -112,6 +127,34 @@ class FirestoreEventRepository @Inject constructor(
             attendees = event.attendees
         )
         firestore.collection("events").add(dto).await()
+    }
+
+    override suspend fun updateEvent(event: Event) {
+        val dto = EventDto(
+            title = event.title,
+            description = event.description,
+            location = event.location,
+            locationUrl = event.locationUrl,
+            startAt = Timestamp(Date.from(event.startAt.atZone(ZoneId.systemDefault()).toInstant())),
+            endAt = Timestamp(Date.from(event.endAt.atZone(ZoneId.systemDefault()).toInstant())),
+            capacity = event.capacity,
+            coverImageUrl = event.coverImageUrl,
+            state = event.state.name,
+            qrPayload = event.qrPayload,
+            attendees = event.attendees
+        )
+        firestore.collection("events").document(event.id).set(dto).await()
+    }
+
+    override suspend fun deleteEvent(id: String) {
+        firestore.collection("events").document(id).delete().await()
+    }
+
+    override suspend fun updateEventState(id: String, state: com.club.calisthenics.core.domain.model.EventState): Result<Unit> = try {
+        firestore.collection("events").document(id).update("state", state.name).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
     override suspend fun rsvpToEvent(eventId: String, userId: String, isAttending: Boolean): Result<Unit> = try {

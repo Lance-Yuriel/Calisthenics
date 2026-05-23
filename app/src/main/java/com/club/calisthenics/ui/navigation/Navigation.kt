@@ -11,8 +11,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.club.calisthenics.feature.admin.AdminScreen
-import com.club.calisthenics.feature.admin.CreateEventScreen
+import com.club.calisthenics.feature.admin.AdminScreen
+import com.club.calisthenics.feature.admin.EditBadgeScreen
+import com.club.calisthenics.feature.admin.EditEventScreen
 import com.club.calisthenics.feature.admin.EditSkillScreen
+import com.club.calisthenics.feature.admin.ManageBadgesScreen
+import com.club.calisthenics.feature.admin.ManageEventsScreen
 import com.club.calisthenics.feature.admin.PendingMembersScreen
 import com.club.calisthenics.feature.admin.SkillsManagementScreen
 import com.club.calisthenics.feature.badges.BadgesScreen
@@ -31,6 +35,14 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Admin : Screen("admin", "Admin", Icons.Filled.AdminPanelSettings)
     object PendingMembers : Screen("pending_members", "Pending Members", Icons.Filled.Group)
     object CreateEvent : Screen("create_event", "Create Event", Icons.Filled.Add)
+    object ManageEvents : Screen("manage_events", "Manage Sessions", Icons.Filled.CalendarToday)
+    object EditEvent : Screen("edit_event/{eventId}", "Edit Session", Icons.Filled.Edit) {
+        fun createRoute(eventId: String?) = if (eventId == null) "edit_event/new" else "edit_event/$eventId"
+    }
+    object ManageBadges : Screen("manage_badges", "Manage Badges", Icons.Filled.MilitaryTech)
+    object EditBadge : Screen("edit_badge/{badgeId}", "Edit Badge", Icons.Filled.Edit) {
+        fun createRoute(badgeId: String?) = if (badgeId == null) "edit_badge/new" else "edit_badge/$badgeId"
+    }
     object SkillsManagement : Screen("skills_management", "Manage Skills", Icons.Filled.Settings)
     object EditSkill : Screen("edit_skill/{skillId}", "Edit Skill", Icons.Filled.Edit) {
         fun createRoute(skillId: String?) = if (skillId == null) "edit_skill/new" else "edit_skill/$skillId"
@@ -94,7 +106,9 @@ fun CalisthenicsNavHost(
                 onBack = { navController.popBackStack() },
                 onNavigateToPendingMembers = { navController.navigate(Screen.PendingMembers.route) },
                 onNavigateToCreateEvent = { navController.navigate(Screen.CreateEvent.route) },
-                onNavigateToManageSkills = { navController.navigate(Screen.SkillsManagement.route) }
+                onNavigateToManageSkills = { navController.navigate(Screen.SkillsManagement.route) },
+                onNavigateToManageEvents = { navController.navigate(Screen.ManageEvents.route) },
+                onNavigateToManageBadges = { navController.navigate(Screen.ManageBadges.route) }
             )
         }
         composable(Screen.PendingMembers.route) {
@@ -103,7 +117,42 @@ fun CalisthenicsNavHost(
             )
         }
         composable(Screen.CreateEvent.route) {
-            CreateEventScreen(
+            EditEventScreen(
+                eventId = null,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.ManageEvents.route) {
+            ManageEventsScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToCreateEvent = { navController.navigate(Screen.EditEvent.createRoute(null)) },
+                onNavigateToEditEvent = { id -> navController.navigate(Screen.EditEvent.createRoute(id)) }
+            )
+        }
+        composable(
+            route = Screen.EditEvent.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId")?.takeIf { it != "new" }
+            EditEventScreen(
+                eventId = eventId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.ManageBadges.route) {
+            ManageBadgesScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToCreateBadge = { navController.navigate(Screen.EditBadge.createRoute(null)) },
+                onNavigateToEditBadge = { id -> navController.navigate(Screen.EditBadge.createRoute(id)) }
+            )
+        }
+        composable(
+            route = Screen.EditBadge.route,
+            arguments = listOf(navArgument("badgeId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val badgeId = backStackEntry.arguments?.getString("badgeId")?.takeIf { it != "new" }
+            EditBadgeScreen(
+                badgeId = badgeId,
                 onBack = { navController.popBackStack() }
             )
         }

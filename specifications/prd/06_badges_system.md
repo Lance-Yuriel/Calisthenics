@@ -1,4 +1,4 @@
-# Badges
+# Badges [DONE]
 
 ## MVP
 - **Admin-assigned only** (no auto rules v1).

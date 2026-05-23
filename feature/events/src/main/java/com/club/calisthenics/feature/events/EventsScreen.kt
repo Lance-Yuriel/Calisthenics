@@ -10,8 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.club.calisthenics.core.domain.model.Event
-import com.club.calisthenics.core.ui.components.CalisthenicsCard
-import java.time.format.DateTimeFormatter
+import com.club.calisthenics.core.ui.components.EventCard
 
 @Composable
 fun EventsScreen(
@@ -68,43 +67,14 @@ private fun EventsList(
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             items(events) { event ->
-                EventItem(
-                    event = event,
+                EventCard(
+                    title = event.title,
+                    location = event.location,
+                    dateTime = event.startAt,
+                    imageUrl = event.coverImageUrl,
                     onClick = { onEventClick(event.id) }
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun EventItem(
-    event: Event,
-    onClick: () -> Unit
-) {
-    val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d • HH:mm")
-    
-    CalisthenicsCard(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = event.startAt.format(dateFormatter).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = event.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = event.location,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }

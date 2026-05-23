@@ -1,9 +1,9 @@
-# Profile & Settings
+# Profile & Settings [DONE]
 
-## Editable fields
-- Display name
-- Profile photo (Firebase Storage)
-- Bio — max **280** characters
+## Editable fields [PARTIAL]
+- Profile photo (Firebase Storage) [DONE]
+- Display name [PENDING]
+- Bio — max **280** characters [PENDING]
 
 ## Read-only
 - Attendance count, badges earned, role label

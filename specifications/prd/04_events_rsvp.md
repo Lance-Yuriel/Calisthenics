@@ -1,10 +1,10 @@
-# Events & RSVP
+# Events & RSVP [DONE]
 
 Events are the core unit of the app.
 
-## RSVP model
+## RSVP model [DONE]
 - RSVP expresses **intent only** — not attendance.
-- States: `GOING` | `NOT_GOING` | `WAITLIST`.
+- States: `GOING` | `NOT_GOING` (MVP uses simple attendees list).
 - **`capacity` is required** on every event (see `16_event_authoring.md`).
 - Editable while event is **`PUBLISHED`** or **`LIVE`**.
 - **Locked** when event is **`CLOSED`**, **`CANCELLED`**, or **`ARCHIVED`**.

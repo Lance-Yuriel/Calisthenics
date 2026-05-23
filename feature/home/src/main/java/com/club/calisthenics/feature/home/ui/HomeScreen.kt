@@ -30,6 +30,7 @@ import com.club.calisthenics.core.domain.model.Event
 import com.club.calisthenics.core.domain.model.UserStats
 import com.club.calisthenics.core.ui.components.CalisthenicsButton
 import com.club.calisthenics.core.ui.components.CalisthenicsCard
+import com.club.calisthenics.core.ui.components.EventCard
 import com.club.calisthenics.core.ui.components.QRScanner
 import com.club.calisthenics.feature.home.HomeUiState
 import com.club.calisthenics.feature.home.HomeViewModel
@@ -204,28 +205,13 @@ private fun FeaturedEventSection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary
         )
-        CalisthenicsCard(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = event.location,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = event.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
-                )
-            }
-        }
+        EventCard(
+            title = event.title,
+            location = event.location,
+            dateTime = event.startAt,
+            imageUrl = event.coverImageUrl,
+            onClick = onClick
+        )
     }
 }
 

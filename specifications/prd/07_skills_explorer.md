@@ -1,4 +1,4 @@
-# Skills Explorer
+# Skills Explorer [DONE]
 
 ## Content per skill
 - `name`, `category`, `difficultyTag`, markdown `description`
