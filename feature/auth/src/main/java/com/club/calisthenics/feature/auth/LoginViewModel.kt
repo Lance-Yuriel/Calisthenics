@@ -44,7 +44,6 @@ class LoginViewModel @Inject constructor(
                 val uid = authRepository.currentUserId
                 Log.d("LoginViewModel", "Login successful. UID: $uid")
                 if (uid != null) {
-                    // Critical Fix: Use first() to check document existence properly without infinite loop
                     val doc = userRepository.getCurrentUser(uid).take(1).firstOrNull()
                     Log.d("LoginViewModel", "Existing document check: $doc")
                     if (doc == null) {

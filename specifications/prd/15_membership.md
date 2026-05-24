@@ -1,24 +1,24 @@
-# Membership & Auth
+# Membership & Auth [DONE]
 
-## Auth
+## Auth [DONE]
 - Google + email/password
 - **Email required** on every account (see `18_onboarding.md`)
 
-## Flow
+## Flow [DONE]
 - Sign up → `pending`
 - Admin **approve** → `approved` + push + **email** (Firebase email template / Function)
 - Admin **reject** → `rejected`; user may **re-apply** → `pending`
 
-## Approval notifications
+## Approval notifications [DONE]
 - **FCM push** (if token exists)
 - **Email always** (to stored email — including Google users)
 
-## Pending / rejected UI
+## Pending / rejected UI [DONE]
 - Pending: full-screen waiting (no tabs)
 - Rejected: message + re-apply
 
-## First admin
+## First admin [DONE]
 - Firebase console custom claim before launch
 
-## Directory
+## Directory [DONE]
 - `17_member_directory.md`

@@ -35,10 +35,8 @@ private val DarkColorScheme = darkColorScheme(
     outline = Outline
 )
 
-// For MVP, focusing on a strong Dark Theme aesthetic
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    // ... we can define light if needed, but fitness apps often look better in dark mode
+    primary = Primary
 )
 
 @Composable
@@ -46,7 +44,8 @@ fun CalisthenicsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else DarkColorScheme // Forcing dark for that "trendy" look as per common fitness app trends
+    // Forcing dark theme for now
+    val colorScheme = DarkColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {

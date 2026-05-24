@@ -14,6 +14,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "mode"
+    productFlavors {
+        create("prod") {
+            dimension = "mode"
+        }
+        create("mock") {
+            dimension = "mode"
+        }
+    }
+
     buildFeatures {
         compose = true
     }
@@ -22,7 +32,6 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
-    implementation(project(":core:data"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)

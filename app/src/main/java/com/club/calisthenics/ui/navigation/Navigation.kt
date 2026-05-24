@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.club.calisthenics.feature.admin.AdminScreen
-import com.club.calisthenics.feature.admin.AdminScreen
 import com.club.calisthenics.feature.admin.BroadcastScreen
 import com.club.calisthenics.feature.admin.EditBadgeScreen
 import com.club.calisthenics.feature.admin.EditEventScreen

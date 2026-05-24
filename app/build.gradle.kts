@@ -20,6 +20,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "mode"
+    productFlavors {
+        create("prod") {
+            dimension = "mode"
+        }
+        create("mock") {
+            dimension = "mode"
+            versionNameSuffix = "-MOCK"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

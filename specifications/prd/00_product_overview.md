@@ -1,36 +1,32 @@
-# Product Overview
+# Product Overview [DONE]
 
 Lightweight calisthenics club app focused on events, attendance, identity.
 
-## Goals
+## Goals [DONE]
 - Event participation (RSVP + schedule)
 - Attendance tracking (QR check-in)
 - Club identity (badges, skills reference)
 - Lightweight gamification (admin badges in MVP)
 
-## Non-goals
-- Social feed
-- Chat
-- Workout tracking
-- Nutrition tracking
-- AI coaching
+## Platform (MVP) [DONE]
+- **Android first** — Kotlin / Jetpack Compose
+- **Backend:** Firebase (Auth + Firestore + Storage)
+- **Development Modes:** 
+  - `mockDebug`: 100% Offline with high-quality mock data (perfect for screenshots).
+  - `prodDebug`: Connected to live Firebase backend.
 
-## Platform (MVP)
-- **Android first** — Kotlin / Jetpack Compose in `AndroidStudioProjects/Calisthenics`
-- **Backend:** Firebase (Auth + Firestore + FCM)
-- **Architect for iOS later** — shared Firebase project, no Android-specific business logic in client-only hacks
+## Architecture [DONE]
+- Clean Architecture with interface-based repositories.
+- Flavor-based source set isolation for mock data.
 
-## Spec index
-- `14_qr_check_in.md` — member scans static event QR
-- `15_membership.md` — open signup, admin approval
-- `16_event_authoring.md` — capacity, waitlist, cancel, edit rules
-- `10_event_state_lifecycle.md` — state transitions incl. CANCELLED
-- `05_notifications.md` — push + inbox, auto reminders
-- `07_skills_explorer.md` — static content + media
-- `06_badges_system.md` — admin-only badges in MVP
-- `17_member_directory.md` — names + roles
-- `18_onboarding.md`, `19_event_detail_ui.md`
-- Polish: directory, inbox bell, email on approve, ai-spec screens
-
-## Backend (MVP)
-- Firebase Auth, Firestore, FCM, Cloud Functions (see `system/06_edge_cases_hardening.md`)
+## Spec index [DONE]
+- `14_qr_check_in.md`
+- `15_membership.md`
+- `16_event_authoring.md`
+- `10_event_state_lifecycle.md`
+- `05_notifications.md`
+- `07_skills_explorer.md`
+- `06_badges_system.md`
+- `17_member_directory.md`
+- `18_onboarding.md`
+- `19_event_detail_ui.md`

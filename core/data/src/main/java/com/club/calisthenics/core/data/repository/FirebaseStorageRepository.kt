@@ -24,7 +24,6 @@ class FirebaseStorageRepository @Inject constructor(
     override suspend fun uploadBitmap(bitmap: Bitmap, path: String): Result<String> = try {
         val ref = storage.reference.child(path)
         
-        // Image minimization: Compress to JPEG 80% quality
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
         val data = baos.toByteArray()
