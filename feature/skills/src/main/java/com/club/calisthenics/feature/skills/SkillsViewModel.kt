@@ -12,12 +12,26 @@ class SkillsViewModel @Inject constructor(
     private val skillRepository: SkillRepository
 ) : ViewModel() {
 
-    val uiState: StateFlow<SkillsUiState> = skillRepository.getPublishedSkills()
-        .map<List<com.club.calisthenics.core.domain.model.Skill>, SkillsUiState> { skills ->
-            SkillsUiState.Success(
-                skillsByCategory = skills.groupBy { it.category }
-            )
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    val uiState: StateFlow<SkillsUiState> = combine(
+        skillRepository.getPublishedSkills(),
+        _searchQuery
+    ) { skills, query ->
+        val filteredSkills = if (query.isBlank()) {
+            skills
+        } else {
+            skills.filter { 
+                it.name.contains(query, ignoreCase = true) || 
+                it.category.contains(query, ignoreCase = true) 
+            }
         }
+        
+        SkillsUiState.Success(
+            skillsByCategory = filteredSkills.groupBy { it.category }
+        ) as SkillsUiState
+    }
         .catch { e ->
             emit(SkillsUiState.Error(e.localizedMessage ?: "Unknown error"))
         }
@@ -26,4 +40,8 @@ class SkillsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = SkillsUiState.Loading
         )
+
+    fun onSearchQueryChanged(newQuery: String) {
+        _searchQuery.value = newQuery
+    }
 }
