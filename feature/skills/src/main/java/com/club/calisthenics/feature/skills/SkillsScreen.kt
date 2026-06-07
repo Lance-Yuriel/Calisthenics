@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +23,7 @@ fun SkillsScreen(
     viewModel: SkillsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     Column(
         modifier = Modifier
@@ -34,10 +37,26 @@ fun SkillsScreen(
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.primary
         )
-        Text(
-            text = "Master the foundations",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { viewModel.onSearchQueryChanged(it) },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Search skills or categories...") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null
+                )
+            },
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
         )
         
         Spacer(modifier = Modifier.height(24.dp))
