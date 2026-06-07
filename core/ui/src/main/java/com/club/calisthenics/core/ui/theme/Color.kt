@@ -2,30 +2,30 @@ package com.club.calisthenics.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Calisthenics Trendy Palette
-val Primary = Color(0xFFD0FF4F) // Electric Lime (Trendy, high-energy for fitness)
-val OnPrimary = Color(0xFF1B2000)
-val PrimaryContainer = Color(0xFF323B00)
-val OnPrimaryContainer = Color(0xFFE2FF8F)
+// Calisthenics Monochrome Palette
+val Primary = Color(0xFFFFFFFF) // Pure White for high-impact actions
+val OnPrimary = Color(0xFF000000) // Black text on white buttons
+val PrimaryContainer = Color(0xFF333333)
+val OnPrimaryContainer = Color(0xFFFFFFFF)
 
-val Secondary = Color(0xFFBCCBB0)
-val OnSecondary = Color(0xFF273421)
-val SecondaryContainer = Color(0xFF3D4B36)
-val OnSecondaryContainer = Color(0xFFD8E7CC)
+val Secondary = Color(0xFFBDBDBD) // Light Grey
+val OnSecondary = Color(0xFF212121)
+val SecondaryContainer = Color(0xFF424242)
+val OnSecondaryContainer = Color(0xFFEEEEEE)
 
-val Tertiary = Color(0xFFA0D0CB)
-val OnTertiary = Color(0xFF003735)
-val TertiaryContainer = Color(0xFF1F4E4B)
-val OnTertiaryContainer = Color(0xFFBCECE7)
+val Tertiary = Color(0xFF757575) // Medium Grey
+val OnTertiary = Color(0xFFFFFFFF)
+val TertiaryContainer = Color(0xFF616161)
+val OnTertiaryContainer = Color(0xFFF5F5F5)
 
-val Error = Color(0xFFFFB4AB)
-val OnError = Color(0xFF690005)
+val Error = Color(0xFFCF6679) // Keeping a subtle red for errors (important for UX)
+val OnError = Color(0xFF000000)
 
-val Background = Color(0xFF1A1C18) // Deep dark background
-val OnBackground = Color(0xFFE3E3DC)
-val Surface = Color(0xFF1A1C18)
-val OnSurface = Color(0xFFE3E3DC)
+val Background = Color(0xFF121212) // Deep charcoal (better than pure black for OLED)
+val OnBackground = Color(0xFFFFFFFF)
+val Surface = Color(0xFF1E1E1E) // Slightly lighter grey for cards/surfaces
+val OnSurface = Color(0xFFEEEEEE)
 
-val SurfaceVariant = Color(0xFF44483D)
-val OnSurfaceVariant = Color(0xFFC4C8BA)
-val Outline = Color(0xFF8E9285)
+val SurfaceVariant = Color(0xFF373737)
+val OnSurfaceVariant = Color(0xFFBDBDBD)
+val Outline = Color(0xFF757575)
